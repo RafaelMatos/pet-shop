@@ -5,7 +5,7 @@ type Props = {
 const Component = ({ title }: Props) => {
   return (
     <>
-      <h2>Component</h2>
+      <h2>Home</h2>
       <p>{title}</p>
     </>
   );
