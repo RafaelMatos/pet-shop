@@ -1,4 +1,7 @@
 import { PeriodSection } from "@/components/period-section";
+import { Appointment as AppointmnetPrisma } from "@/generated/prisma/client";
+import { Appointment, AppointmentPeriodDay } from "@/types/appointment";
+
 
 const today = new Date();
 
@@ -16,7 +19,7 @@ const appointments = [
     description: 'Consulta',
     tutorName: 'João',
     phone: '1234567890',
-    scheduleAt: createDate(0, 9, 0), // Hoje às 09:00
+    scheduledAt: createDate(0, 9, 0), // Hoje às 09:00
   },
   {
     id: '2',
@@ -24,7 +27,7 @@ const appointments = [
     description: 'Vacinação',
     tutorName: 'João',
     phone: '1234567890',
-    scheduleAt: createDate(1, 10, 30), // Amanhã às 10:30
+    scheduledAt: createDate(1, 10, 30), // Amanhã às 10:30
   },
   {
     id: '3',
@@ -32,7 +35,7 @@ const appointments = [
     description: 'Retorno',
     tutorName: 'Rafael',
     phone: '1234567890',
-    scheduleAt: createDate(2, 14, 0), // Daqui 2 dias às 14:00
+    scheduledAt: createDate(2, 14, 0), // Daqui 2 dias às 14:00
   },
   {
     id: '4',
@@ -40,7 +43,7 @@ const appointments = [
     description: 'Banho e Tosa',
     tutorName: 'Natalia',
     phone: '1234567890',
-    scheduleAt: createDate(3, 16, 15), // Daqui 3 dias às 16:15
+    scheduledAt: createDate(3, 16, 15), // Daqui 3 dias às 16:15
   },
   {
     id: '5',
@@ -48,9 +51,33 @@ const appointments = [
     description: 'Consulta',
     tutorName: 'João',
     phone: '1234567890',
-    scheduleAt: createDate(5, 11, 45), // Daqui 5 dias às 11:45
+    scheduledAt: createDate(5, 11, 45), // Daqui 5 dias às 11:45
   },
 ];
+
+const getPeriod = (hour: number) : AppointmentPeriodDay =>{
+  if(hour >= 9 && hour <= 12) return 'morning'
+  if(hour > 12 && hour <= 18) return 'afternoon'
+  return 'evening'
+}
+
+function groupAppointmentByPeriod( appointments : AppointmnetPrisma[]){
+  const transformedAppointments  : Appointment[] = appointments.map((apt) =>{
+    return {
+      ...apt,
+      time: apt.scheduledAt.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      period: getPeriod(apt.scheduledAt.getHours())
+    }
+  })
+
+  const morningAppointments = transformedAppointments.filter((apt)=>(apt.period === 'morning'))
+  const afternoonAppointments = transformedAppointments.filter((apt)=>(apt.period === 'afternoon'))
+  const eveningAppointments = transformedAppointments.filter((apt)=>(apt.period === 'evening'))
+
+}
 
 export default function Home() {
   return (
