@@ -1,5 +1,4 @@
-
-export type AppointmentPeriodDay = 'morning' | 'afternoon' | 'evening'
+export type AppointmentPeriodDay = 'morning' | 'afternoon' | 'evening';
 
 export type Appointment = {
   id: string;
@@ -10,11 +9,11 @@ export type Appointment = {
   description: string;
   scheduledAt: Date;
   period: AppointmentPeriodDay;
-}
+};
 
 export type AppointmentPeriod = {
-    title: string;
-    type: AppointmentPeriodDay
-    timeRange: string;
-    appointments: Appointment[]
-}
+  title: string;
+  type: AppointmentPeriodDay;
+  timeRange: string;
+  appointments: Appointment[];
+};

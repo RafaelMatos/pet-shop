@@ -1,7 +1,6 @@
-import { PeriodSection } from "@/components/period-section";
-import { Appointment as AppointmnetPrisma } from "@/generated/prisma/client";
-import { Appointment, AppointmentPeriodDay } from "@/types/appointment";
-
+import { PeriodSection } from '@/components/period-section';
+import { Appointment as AppointmnetPrisma } from '@/generated/prisma/client';
+import { Appointment, AppointmentPeriodDay } from '@/types/appointment';
 
 const today = new Date();
 
@@ -55,28 +54,33 @@ const appointments = [
   },
 ];
 
-const getPeriod = (hour: number) : AppointmentPeriodDay =>{
-  if(hour >= 9 && hour <= 12) return 'morning'
-  if(hour > 12 && hour <= 18) return 'afternoon'
-  return 'evening'
-}
+const getPeriod = (hour: number): AppointmentPeriodDay => {
+  if (hour >= 9 && hour <= 12) return 'morning';
+  if (hour > 12 && hour <= 18) return 'afternoon';
+  return 'evening';
+};
 
-function groupAppointmentByPeriod( appointments : AppointmnetPrisma[]){
-  const transformedAppointments  : Appointment[] = appointments.map((apt) =>{
+function groupAppointmentByPeriod(appointments: AppointmnetPrisma[]) {
+  const transformedAppointments: Appointment[] = appointments.map((apt) => {
     return {
       ...apt,
       time: apt.scheduledAt.toLocaleTimeString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit',
       }),
-      period: getPeriod(apt.scheduledAt.getHours())
-    }
-  })
+      period: getPeriod(apt.scheduledAt.getHours()),
+    };
+  });
 
-  const morningAppointments = transformedAppointments.filter((apt)=>(apt.period === 'morning'))
-  const afternoonAppointments = transformedAppointments.filter((apt)=>(apt.period === 'afternoon'))
-  const eveningAppointments = transformedAppointments.filter((apt)=>(apt.period === 'evening'))
-
+  const morningAppointments = transformedAppointments.filter(
+    (apt) => apt.period === 'morning'
+  );
+  const afternoonAppointments = transformedAppointments.filter(
+    (apt) => apt.period === 'afternoon'
+  );
+  const eveningAppointments = transformedAppointments.filter(
+    (apt) => apt.period === 'evening'
+  );
 }
 
 export default function Home() {
@@ -84,14 +88,15 @@ export default function Home() {
     <div className="bg-background-primary p-6">
       <div className="flex items-center justify-between md:mb-8">
         <div>
-          <h1 className="text-title-size text-content-primary mb-2">Sua agenda</h1>
-          <p className="text-paragraph-medium-size text-content-secondary">Aqui você pode ver todos os clientes e servços agendados para hoje.</p>
+          <h1 className="text-title-size text-content-primary mb-2">
+            Sua agenda
+          </h1>
+          <p className="text-paragraph-medium-size text-content-secondary">
+            Aqui você pode ver todos os clientes e servços agendados para hoje.
+          </p>
         </div>
-
       </div>
       <PeriodSection period={[]} />
-
-
     </div>
   );
 }
