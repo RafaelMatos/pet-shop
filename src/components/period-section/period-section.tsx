@@ -1,7 +1,8 @@
 import { Cloudy, Moon, Sun } from 'lucide-react';
+import { AppointmentPeriod } from '@/types/appointment';
 
 type PeriodSectionProps = {
-  period: any;
+  period: AppointmentPeriod;
 };
 
 const periodIcons = {
@@ -15,9 +16,9 @@ export const PeriodSection = ({ period }: PeriodSectionProps) => {
     <section className="mb-8 bg-background-tertiary rounded-xl">
       <div className="flex items-center px-5 py-3 justify-between border-b border-[#2E2C30]">
         <div>
-          {periodIcons[period?.type]}
+          {periodIcons[period.type]}
           <h2 className="text-label-large-size text-content-primary">
-            {period?.title}
+            {period.title}
           </h2>
         </div>
       </div>

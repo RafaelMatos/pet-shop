@@ -96,7 +96,7 @@ export default function Home() {
           </p>
         </div>
       </div>
-      <PeriodSection period={[]} />
+      <PeriodSection period={{ title: 'Manhã', type: 'morning', timeRange: '09:00 - 12:00', appointments: [] }} />
     </div>
   );
 }
