@@ -3,6 +3,7 @@ pre-commit:
     check:
       run: pnpm format {staged_files}
       glob: '*.{ts,tsx,js,jsx,json,css,.mjs,md}'
+      stage_fixed: true
 
 pre-push:
   commands:
