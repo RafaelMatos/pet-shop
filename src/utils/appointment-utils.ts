@@ -1,62 +1,68 @@
-import { AppointmentPeriodDay, AppointmentPeriod, Appointment } from "@/types/appointment";
+import {
+  AppointmentPeriodDay,
+  AppointmentPeriod,
+  Appointment,
+} from '@/types/appointment';
 
 import { Appointment as AppointmentPrisma } from '@prisma/client';
 
 export const getPeriod = (hour: number): AppointmentPeriodDay => {
-    if (hour >= 9 && hour <= 12) return 'morning';
-    if (hour > 12 && hour <= 18) return 'afternoon';
-    return 'evening';
+  if (hour >= 9 && hour <= 12) return 'morning';
+  if (hour > 12 && hour <= 18) return 'afternoon';
+  return 'evening';
 };
 
-export function groupAppointmentByPeriod(appointments: AppointmentPrisma[]): AppointmentPeriod[] {
-    const transformedAppointments: Appointment[] = appointments.map((apt) => {
-        return {
-            ...apt,
-            time: apt.scheduledAt.toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit',
-            }),
-            period: getPeriod(apt.scheduledAt.getHours()),
-        };
-    });
+export function groupAppointmentByPeriod(
+  appointments: AppointmentPrisma[]
+): AppointmentPeriod[] {
+  const transformedAppointments: Appointment[] = appointments.map((apt) => {
+    return {
+      ...apt,
+      time: apt.scheduledAt.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      period: getPeriod(apt.scheduledAt.getHours()),
+    };
+  });
 
-    const morningAppointments = transformedAppointments.filter(
-        (apt) => apt.period === 'morning'
-    );
-    const afternoonAppointments = transformedAppointments.filter(
-        (apt) => apt.period === 'afternoon'
-    );
-    const eveningAppointments = transformedAppointments.filter(
-        (apt) => apt.period === 'evening'
-    );
+  const morningAppointments = transformedAppointments.filter(
+    (apt) => apt.period === 'morning'
+  );
+  const afternoonAppointments = transformedAppointments.filter(
+    (apt) => apt.period === 'afternoon'
+  );
+  const eveningAppointments = transformedAppointments.filter(
+    (apt) => apt.period === 'evening'
+  );
 
-    return [
-        {
-            title: 'Manhã',
-            type: 'morning',
-            timeRange: '09h-12h',
-            appointments: morningAppointments
-        },
-        {
-            title: 'Tarde',
-            type: 'afternoon',
-            timeRange: '13h-18h',
-            appointments: afternoonAppointments
-        },
-        {
-            title: 'Noite',
-            type: 'evening',
-            timeRange: '19h-21h',
-            appointments: eveningAppointments
-        },
-    ]
+  return [
+    {
+      title: 'Manhã',
+      type: 'morning',
+      timeRange: '09h-12h',
+      appointments: morningAppointments,
+    },
+    {
+      title: 'Tarde',
+      type: 'afternoon',
+      timeRange: '13h-18h',
+      appointments: afternoonAppointments,
+    },
+    {
+      title: 'Noite',
+      type: 'evening',
+      timeRange: '19h-21h',
+      appointments: eveningAppointments,
+    },
+  ];
 }
 
 const today = new Date();
 
 export const createDate = (daysFromToday: number, hour: number, minute = 0) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() + daysFromToday);
-    date.setHours(hour, minute, 0, 0);
-    return date;
+  const date = new Date(today);
+  date.setDate(today.getDate() + daysFromToday);
+  date.setHours(hour, minute, 0, 0);
+  return date;
 };
