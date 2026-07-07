@@ -13,7 +13,7 @@ export function AppointmentForm() {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button>Agendar</Button>
+        <Button variant="brand">Novo Agendamento</Button>
       </DialogTrigger>
 
       <DialogContent>
