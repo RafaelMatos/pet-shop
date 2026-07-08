@@ -8,8 +8,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const appointmentFormSchema = z.object({
+  tutorName: z.string().min(3, 'O nome do tutor é obrigatorio'),
+  // petName: z.string().min(3, 'O nome do pet é obrigatorio'),
+  // phone: z.string().min(11, 'O telefone é obrigatorio'),
+  // description: z.string().min(3, 'A descrição é obrigatoria'),
+})
+
+type AppointmentFormValues = z.infer<typeof appointmentFormSchema>
 
 export function AppointmentForm() {
+
+  const form = useForm<AppointmentFormValues>({
+    resolver: zodResolver(appointmentFormSchema),
+    defaultValues: {
+      tutorName: '',
+      // petName: '',
+      // phone: '',
+      // description: '',
+    }
+
+  })
+
+  const onSubmit = (data: AppointmentFormValues) => {
+    console.log(data);
+  }
+
   return (
     <Dialog>
       <DialogTrigger>
@@ -23,8 +51,9 @@ export function AppointmentForm() {
             Preencha os dados do cliente oara realizar o agendamento:
           </DialogDescription>
         </DialogHeader>
-        <form action="" className="">
-          <Button type="submit">Enviar</Button>
+        <form action="" className="" onSubmit={form.handleSubmit(onSubmit)}>
+          <input type="text" {...form.register('tutorName')} />
+          <Button type="submit">Agendar</Button>
         </form>
       </DialogContent>
     </Dialog>
