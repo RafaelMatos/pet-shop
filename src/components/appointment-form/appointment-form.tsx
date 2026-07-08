@@ -9,20 +9,21 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Field, FieldLabel, FieldDescription, FieldError } from '../ui/field';
+import { Input } from '../ui/input';
 
 const appointmentFormSchema = z.object({
   tutorName: z.string().min(3, 'O nome do tutor é obrigatorio'),
   // petName: z.string().min(3, 'O nome do pet é obrigatorio'),
   // phone: z.string().min(11, 'O telefone é obrigatorio'),
   // description: z.string().min(3, 'A descrição é obrigatoria'),
-})
+});
 
-type AppointmentFormValues = z.infer<typeof appointmentFormSchema>
+type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
 export function AppointmentForm() {
-
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
@@ -30,13 +31,12 @@ export function AppointmentForm() {
       // petName: '',
       // phone: '',
       // description: '',
-    }
-
-  })
+    },
+  });
 
   const onSubmit = (data: AppointmentFormValues) => {
     console.log(data);
-  }
+  };
 
   return (
     <Dialog>
@@ -52,6 +52,25 @@ export function AppointmentForm() {
           </DialogDescription>
         </DialogHeader>
         <form action="" className="" onSubmit={form.handleSubmit(onSubmit)}>
+          <Controller
+            name="tutorName"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Nome do tutor</FieldLabel>
+                <Input
+                  {...field}
+                  id={field.name}
+                  aria-invalid={fieldState.invalid}
+                  placeholder="Nome do tutor"
+                  autoComplete="off"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
           <input type="text" {...form.register('tutorName')} />
           <Button type="submit">Agendar</Button>
         </form>
