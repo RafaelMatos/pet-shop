@@ -13,13 +13,15 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldLabel, FieldDescription, FieldError } from '../ui/field';
 import { Input } from '../ui/input';
-import { CalendarIcon, ChevronDownIcon, Dog, Phone, User } from 'lucide-react';
+import { CalendarIcon, ChevronDownIcon, Clock, Dog, Phone, User } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { IMaskInput } from 'react-imask';
-import { format, startOfDay, startOfToday } from 'date-fns';
+import { format, setHours, setMinutes, startOfDay, startOfToday } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
 import { Calendar } from '../ui/calendar';
+
+import { SelectTrigger, SelectValue, SelectContent, SelectItem, Select } from '../ui/select';
 
 const appointmentFormSchema = z.object({
   tutorName: z.string().min(3, 'O nome do tutor é obrigatorio'),
@@ -28,7 +30,17 @@ const appointmentFormSchema = z.object({
   description: z.string().min(3, 'A descrição é obrigatoria'),
   scheduleAt: z.date({
     error: 'A data é obrigatoria'
-  }).min(startOfToday(), { message: 'A data não pode ser no passado' })
+  }).min(startOfToday(), { message: 'A data não pode ser no passado' }),
+  time: z.string().min(1, 'O horario é obrigatorio'),
+}).refine((data) => {
+  const [hour, minute] = data.time.split(':')
+  const sheduleDateTime = setMinutes(setHours(data.scheduleAt, Number(hour)),
+    Number(minute))
+
+  return sheduleDateTime > new Date()
+}, {
+  path: ['time'],
+  message: 'O horario deve ser maior que o atual'
 });
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
@@ -200,6 +212,42 @@ export function AppointmentForm() {
             )}
           />
 
+          <Controller
+            name="time"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Horario</FieldLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+
+                  <SelectTrigger>
+                    <div className='flex items-center gap-2'>
+                      <Clock className='h-4 w-4 text-content-brand' />
+                      <SelectValue placeholder="--:-- --" />
+                    </div>
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {timeOptions.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+
+                </Select>
+
+
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+
 
           <Button type="submit" variant="brand">Agendar</Button>
         </form>
@@ -207,3 +255,20 @@ export function AppointmentForm() {
     </Dialog>
   );
 }
+
+const generateTimeOptions = (): string[] => {
+  const times = []
+
+  for (let hour = 9; hour <= 21; hour++) {
+
+    for (let minut = 0; minut < 60; minut += 30) {
+      if (hour === 21 && minut > 0) break;
+      const timeString = `${hour.toString().padStart(2, '0')}:${minut.toString().padStart(2, '0')}`
+      times.push(timeString)
+    }
+  }
+
+  return times
+}
+
+const timeOptions = generateTimeOptions()
