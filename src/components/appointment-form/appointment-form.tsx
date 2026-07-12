@@ -13,7 +13,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldLabel, FieldDescription, FieldError } from '../ui/field';
 import { Input } from '../ui/input';
-import { CalendarIcon, ChevronDownIcon, Clock, Dog, Phone, User } from 'lucide-react';
+import { CalendarIcon, ChevronDownIcon, Clock, Dog, Loader2, Phone, User } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { IMaskInput } from 'react-imask';
 import { format, setHours, setMinutes, startOfDay, startOfToday } from 'date-fns';
@@ -53,7 +53,8 @@ export function AppointmentForm() {
       petName: '',
       phone: '',
       description: '',
-      scheduleAt: undefined
+      scheduleAt: undefined,
+      time: ''
     },
   });
 
@@ -250,9 +251,15 @@ export function AppointmentForm() {
           </div>
 
 
+          <div className='flex justify-end'>
+            <Button type="submit" variant="brand" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              ) : 'Agendar'}
+            </Button>
+          </div>
 
 
-          <Button type="submit" variant="brand">Agendar</Button>
         </form>
       </DialogContent>
     </Dialog>
