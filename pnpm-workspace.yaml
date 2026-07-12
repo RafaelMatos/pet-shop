@@ -1,10 +1,12 @@
 allowBuilds:
   '@prisma/engines': true
   core-js: false
+  core-js-pure: false
   lefthook: false
   prisma: true
   sharp: false
   unrs-resolver: false
+
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
