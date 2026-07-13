@@ -20,8 +20,10 @@ import { format, setHours, setMinutes, startOfDay, startOfToday } from 'date-fns
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
 import { Calendar } from '../ui/calendar';
+import { toast } from 'sonner'
 
 import { SelectTrigger, SelectValue, SelectContent, SelectItem, Select } from '../ui/select';
+import { createAppointment } from '@/app/actions';
 
 const appointmentFormSchema = z.object({
   tutorName: z.string().min(3, 'O nome do tutor é obrigatorio'),
@@ -58,7 +60,19 @@ export function AppointmentForm() {
     },
   });
 
-  const onSubmit = (data: AppointmentFormValues) => {
+  const onSubmit = async (data: AppointmentFormValues) => {
+
+    const { scheduleAt } = data
+
+    const [hours, minutes] = data.time.split(':')
+
+    scheduleAt.setHours(Number(hours), Number(minutes), 0, 0)
+
+    // await createAppointment({...data
+    //   , scheduleAt })
+
+    toast.success(`Agendamento realizado para: ${data.tutorName} (${data.petName}) as ${format(scheduleAt, 'dd/MM/yyyy HH:mm')}`)
+
     console.log(data);
   };
 
