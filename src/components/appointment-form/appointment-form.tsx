@@ -13,37 +13,66 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldLabel, FieldDescription, FieldError } from '../ui/field';
 import { Input } from '../ui/input';
-import { CalendarIcon, ChevronDownIcon, Clock, Dog, Loader2, Phone, User } from 'lucide-react';
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  Clock,
+  Dog,
+  Loader2,
+  Phone,
+  User,
+} from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { IMaskInput } from 'react-imask';
-import { format, setHours, setMinutes, startOfDay, startOfToday } from 'date-fns';
+import {
+  format,
+  setHours,
+  setMinutes,
+  startOfDay,
+  startOfToday,
+} from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { cn } from '@/lib/utils';
 import { Calendar } from '../ui/calendar';
-import { toast } from 'sonner'
+import { toast } from 'sonner';
 
-import { SelectTrigger, SelectValue, SelectContent, SelectItem, Select } from '../ui/select';
+import {
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Select,
+} from '../ui/select';
 import { createAppointment } from '@/app/actions';
 
-const appointmentFormSchema = z.object({
-  tutorName: z.string().min(3, 'O nome do tutor é obrigatorio'),
-  petName: z.string().min(3, 'O nome do pet é obrigatorio'),
-  phone: z.string().min(11, 'O telefone é obrigatorio'),
-  description: z.string().min(3, 'A descrição é obrigatoria'),
-  scheduleAt: z.date({
-    error: 'A data é obrigatoria'
-  }).min(startOfToday(), { message: 'A data não pode ser no passado' }),
-  time: z.string().min(1, 'O horario é obrigatorio'),
-}).refine((data) => {
-  const [hour, minute] = data.time.split(':')
-  const sheduleDateTime = setMinutes(setHours(data.scheduleAt, Number(hour)),
-    Number(minute))
+const appointmentFormSchema = z
+  .object({
+    tutorName: z.string().min(3, 'O nome do tutor é obrigatorio'),
+    petName: z.string().min(3, 'O nome do pet é obrigatorio'),
+    phone: z.string().min(11, 'O telefone é obrigatorio'),
+    description: z.string().min(3, 'A descrição é obrigatoria'),
+    scheduleAt: z
+      .date({
+        error: 'A data é obrigatoria',
+      })
+      .min(startOfToday(), { message: 'A data não pode ser no passado' }),
+    time: z.string().min(1, 'O horario é obrigatorio'),
+  })
+  .refine(
+    (data) => {
+      const [hour, minute] = data.time.split(':');
+      const sheduleDateTime = setMinutes(
+        setHours(data.scheduleAt, Number(hour)),
+        Number(minute)
+      );
 
-  return sheduleDateTime > new Date()
-}, {
-  path: ['time'],
-  message: 'O horario deve ser maior que o atual'
-});
+      return sheduleDateTime > new Date();
+    },
+    {
+      path: ['time'],
+      message: 'O horario deve ser maior que o atual',
+    }
+  );
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
@@ -56,54 +85,66 @@ export function AppointmentForm() {
       phone: '',
       description: '',
       scheduleAt: undefined,
-      time: ''
+      time: '',
     },
   });
 
   const onSubmit = async (data: AppointmentFormValues) => {
+    const { scheduleAt } = data;
 
-    const { scheduleAt } = data
+    const [hours, minutes] = data.time.split(':');
 
-    const [hours, minutes] = data.time.split(':')
+    scheduleAt.setHours(Number(hours), Number(minutes), 0, 0);
 
-    scheduleAt.setHours(Number(hours), Number(minutes), 0, 0)
+    await createAppointment({ ...data, scheduleAt });
 
-    // await createAppointment({...data
-    //   , scheduleAt })
-
-    toast.success(`Agendamento realizado para: ${data.tutorName} (${data.petName}) as ${format(scheduleAt, 'dd/MM/yyyy HH:mm')}`)
+    toast.success(
+      `Agendamento realizado para: ${data.tutorName} (${data.petName}) as ${format(scheduleAt, 'dd/MM/yyyy HH:mm')}`
+    );
 
     console.log(data);
   };
 
   return (
-    <Dialog >
+    <Dialog>
       <DialogTrigger asChild>
         <Button variant="brand">Novo Agendamento</Button>
       </DialogTrigger>
 
       <DialogContent variant="appointment">
         <DialogHeader>
-          <DialogTitle >Agende um atendimento</DialogTitle>
+          <DialogTitle>Agende um atendimento</DialogTitle>
           <DialogDescription>
             Preencha os dados do cliente para realizar o agendamento:
           </DialogDescription>
         </DialogHeader>
-        <form action="" className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          action=""
+          className="space-y-4"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
           <Controller
             name="tutorName"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Nome do tutor</FieldLabel>
-                <div className='relative '>
-                  <User className='absolute left-3 top-1/2 -translate-y-1/2 transform text-content-brand' size={20} />
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="text-label-medium-size text-content-primary"
+                >
+                  Nome do tutor
+                </FieldLabel>
+                <div className="relative ">
+                  <User
+                    className="absolute left-3 top-1/2 -translate-y-1/2 transform text-content-brand"
+                    size={20}
+                  />
                   <Input
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="Nome do tutor"
-                    className='pl-10'
+                    className="pl-10"
                     autoComplete="off"
                   />
                 </div>
@@ -119,15 +160,23 @@ export function AppointmentForm() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Nome do pet</FieldLabel>
-                <div className='relative '>
-                  <Dog className='absolute left-3 top-1/2 -translate-y-1/2 transform text-content-brand' size={20} />
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="text-label-medium-size text-content-primary"
+                >
+                  Nome do pet
+                </FieldLabel>
+                <div className="relative ">
+                  <Dog
+                    className="absolute left-3 top-1/2 -translate-y-1/2 transform text-content-brand"
+                    size={20}
+                  />
                   <Input
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
                     placeholder="Nome do seu pet"
-                    className='pl-10'
+                    className="pl-10"
                     autoComplete="off"
                   />
                 </div>
@@ -144,9 +193,17 @@ export function AppointmentForm() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Telefone</FieldLabel>
-                <div className='relative '>
-                  <Phone className='absolute left-3 top-1/2 -translate-y-1/2 transform text-content-brand' size={20} />
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="text-label-medium-size text-content-primary"
+                >
+                  Telefone
+                </FieldLabel>
+                <div className="relative ">
+                  <Phone
+                    className="absolute left-3 top-1/2 -translate-y-1/2 transform text-content-brand"
+                    size={20}
+                  />
                   <IMaskInput
                     {...field}
                     id={field.name}
@@ -154,8 +211,8 @@ export function AppointmentForm() {
                     placeholder="(XX) XXXXX-XXXX"
                     className="pl-10 flex h-12 w-full rounded-md border border-border-primary bg-background-tertiary px-3 py-2 text-sm text-content-primary ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-content-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-0 focus-visible:ring-border-brand disabled:cursor-not-allowed disabled:opacity-50 hover:border-border-secondary focus:border-border-brand focus-visible:border-border-brand aria-invalid:ring-destructive/20 aria-invalid:border-destructive"
                     autoComplete="off"
-                    mask='(00) 00000-0000'
-                    radix='integer'
+                    mask="(00) 00000-0000"
+                    radix="integer"
                     unmask={false}
                   />
                 </div>
@@ -172,13 +229,18 @@ export function AppointmentForm() {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Descrição do serviço</FieldLabel>
+                <FieldLabel
+                  htmlFor={field.name}
+                  className="text-label-medium-size text-content-primary"
+                >
+                  Descrição do serviço
+                </FieldLabel>
                 <Textarea
                   {...field}
                   id={field.name}
                   aria-invalid={fieldState.invalid}
                   placeholder="Descrição do serviço"
-                  className='resize-none'
+                  className="resize-none"
                   autoComplete="off"
                 />
 
@@ -189,36 +251,50 @@ export function AppointmentForm() {
             )}
           />
 
-          <div className='space-y-4 md:grid md:grid-cols-2 gap-4 md:space-y-0'>
+          <div className="space-y-4 md:grid md:grid-cols-2 gap-4 md:space-y-0">
             <Controller
               name="scheduleAt"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className='flex flex-col'>
-                  <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Data</FieldLabel>
+                <Field
+                  data-invalid={fieldState.invalid}
+                  className="flex flex-col"
+                >
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-label-medium-size text-content-primary"
+                  >
+                    Data
+                  </FieldLabel>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn(
-                        'w-full justify-between text-left font-normal bg-background-tertiary border-border-primary text-content-primary hover:bg-background-tertiary hover:border-border-secondary hover:text-content-primary focus-visible:ring-offset-0 focus-visible:ring-1 focus-visible:ring-border-brand focus:border-border-brand focus-visible:border-border-brand',
-                        !field.value && 'text-content-secondary'
-                      )}>
-                        <div className='flex items-center gap-2'>
-                          <CalendarIcon className='h-4 w-4 text-content-brand' />
-                          {field.value ? (format(field.value, 'dd/MM/yyyy')) : (<span>Selecione uma data</span>)}
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-between text-left font-normal bg-background-tertiary border-border-primary text-content-primary hover:bg-background-tertiary hover:border-border-secondary hover:text-content-primary focus-visible:ring-offset-0 focus-visible:ring-1 focus-visible:ring-border-brand focus:border-border-brand focus-visible:border-border-brand',
+                          !field.value && 'text-content-secondary'
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <CalendarIcon className="h-4 w-4 text-content-brand" />
+                          {field.value ? (
+                            format(field.value, 'dd/MM/yyyy')
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
                         </div>
-                        <ChevronDownIcon className='h-4 w-4 opacity-50' />
+                        <ChevronDownIcon className="h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className='w-auto p-0' align='start'>
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        mode='single'
+                        mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) => date < startOfToday()}
                       />
                     </PopoverContent>
                   </Popover>
-
 
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -232,15 +308,16 @@ export function AppointmentForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name} className='text-label-medium-size text-content-primary'>Horario</FieldLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
+                  <FieldLabel
+                    htmlFor={field.name}
+                    className="text-label-medium-size text-content-primary"
                   >
-
+                    Horario
+                  </FieldLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
-                      <div className='flex items-center gap-2'>
-                        <Clock className='h-4 w-4 text-content-brand' />
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-content-brand" />
                         <SelectValue placeholder="--:-- --" />
                       </div>
                     </SelectTrigger>
@@ -252,9 +329,7 @@ export function AppointmentForm() {
                         </SelectItem>
                       ))}
                     </SelectContent>
-
                   </Select>
-
 
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -264,16 +339,19 @@ export function AppointmentForm() {
             />
           </div>
 
-
-          <div className='flex justify-end'>
-            <Button type="submit" variant="brand" disabled={form.formState.isSubmitting}>
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              variant="brand"
+              disabled={form.formState.isSubmitting}
+            >
               {form.formState.isSubmitting ? (
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              ) : 'Agendar'}
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                'Agendar'
+              )}
             </Button>
           </div>
-
-
         </form>
       </DialogContent>
     </Dialog>
@@ -281,18 +359,17 @@ export function AppointmentForm() {
 }
 
 const generateTimeOptions = (): string[] => {
-  const times = []
+  const times = [];
 
   for (let hour = 9; hour <= 21; hour++) {
-
     for (let minut = 0; minut < 60; minut += 30) {
       if (hour === 21 && minut > 0) break;
-      const timeString = `${hour.toString().padStart(2, '0')}:${minut.toString().padStart(2, '0')}`
-      times.push(timeString)
+      const timeString = `${hour.toString().padStart(2, '0')}:${minut.toString().padStart(2, '0')}`;
+      times.push(timeString);
     }
   }
 
-  return times
-}
+  return times;
+};
 
-const timeOptions = generateTimeOptions()
+const timeOptions = generateTimeOptions();
