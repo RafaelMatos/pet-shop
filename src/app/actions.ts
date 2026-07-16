@@ -43,11 +43,12 @@ export async function createAppointment(data: AppointmentData) {
 
     await prisma.appointment.create({
       data: {
-        ...parsedData,
+        ...rest,
         scheduledAt: new Date(parsedData.scheduleAt),
       },
     });
   } catch (err) {
     console.error(err);
+    return { error: 'Não foi possível salvar o agendamento. Tente novamente.' };
   }
 }

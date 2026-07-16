@@ -96,13 +96,16 @@ export function AppointmentForm() {
 
     scheduleAt.setHours(Number(hours), Number(minutes), 0, 0);
 
-    await createAppointment({ ...data, scheduleAt });
+    const result = await createAppointment({ ...data, scheduleAt });
+
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
 
     toast.success(
       `Agendamento realizado para: ${data.tutorName} (${data.petName}) as ${format(scheduleAt, 'dd/MM/yyyy HH:mm')}`
     );
-
-    console.log(data);
   };
 
   return (

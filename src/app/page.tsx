@@ -5,7 +5,6 @@ import { APPOINTMENTS, groupAppointmentByPeriod } from '@/utils';
 
 export default async function Home() {
   const appointments = await prisma.appointment.findMany();
-  console.log(appointments);
 
   const periods = groupAppointmentByPeriod(appointments);
 
