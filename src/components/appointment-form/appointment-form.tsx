@@ -45,6 +45,7 @@ import {
 } from '../ui/select';
 import { createAppointment } from '@/app/actions';
 import { useState } from 'react';
+import { Appointment } from '@/types/appointment';
 
 const appointmentFormSchema = z
   .object({
@@ -77,9 +78,16 @@ const appointmentFormSchema = z
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
-export function AppointmentForm() {
+type AppointmentFormProps = {
+  appointment?: Appointment;
+  children: React.ReactNode;
+};
 
-  const [open, setOpen] = useState(false)
+export function AppointmentForm({
+  appointment,
+  children,
+}: AppointmentFormProps) {
+  const [open, setOpen] = useState(false);
 
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
@@ -111,12 +119,14 @@ export function AppointmentForm() {
       `Agendamento realizado para: ${data.tutorName} (${data.petName}) as ${format(scheduleAt, 'dd/MM/yyyy HH:mm')}`
     );
 
-    form.reset()
-    setOpen(false)
+    form.reset();
+    setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+
       <DialogTrigger asChild>
         <Button variant="brand">Novo Agendamento</Button>
       </DialogTrigger>

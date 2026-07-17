@@ -1,5 +1,8 @@
 import { cn } from '@/lib/utils';
 import { Appointment } from '@/types/appointment';
+import { AppointmentForm } from '../appointment-form';
+import { Button } from '../ui/button';
+import { SquarePenIcon } from 'lucide-react';
 
 type AppointmentCardProps = {
   appointment: Appointment;
@@ -43,6 +46,14 @@ export const AppointmentCard = ({
         <span className="text-paragraph-small-size text-content-secondary">
           {description}
         </span>
+      </div>
+
+      <div className="text-right mt-2 md:mt-0 col-span-2 md:col-span-1 flex justify-end items-center gap-2">
+        <AppointmentForm appointment={appointment}>
+          <Button variant="edit" size="icon">
+            <SquarePenIcon size={20} />
+          </Button>
+        </AppointmentForm>
       </div>
     </div>
   );
