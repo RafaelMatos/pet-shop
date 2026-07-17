@@ -1,5 +1,6 @@
 'use server';
 import { prisma } from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const appointmentSchema = z.object({
@@ -47,6 +48,7 @@ export async function createAppointment(data: AppointmentData) {
         scheduledAt: new Date(parsedData.scheduleAt),
       },
     });
+    revalidatePath('/');
   } catch (err) {
     console.error(err);
     return { error: 'Não foi possível salvar o agendamento. Tente novamente.' };
