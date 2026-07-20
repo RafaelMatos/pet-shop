@@ -102,5 +102,32 @@ export async function updateAppointment(id: string, data: AppointmentData) {
 
   } catch (error) {
     console.log("Erro ao atualizar: ", error)
+    return { error: 'Não foi possível atualizar o agendamento. Tente novamente.' };
+  }
+}
+
+
+export async function deleteAppointment(id: string) {
+  try {
+
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        id
+      },
+    });
+
+    if (!existingAppointment) {
+      return { error: 'Agendamento não encontrado.' };
+    }
+
+    await prisma.appointment.delete({
+      where: {
+        id
+      }
+    })
+    revalidatePath('/')
+  } catch (error) {
+    console.log("Erro ao deletar: ", error)
+    return { error: 'Não foi possível deletar o agendamento. Tente novamente.' };
   }
 }
