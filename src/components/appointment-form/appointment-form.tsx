@@ -43,8 +43,8 @@ import {
   SelectItem,
   Select,
 } from '../ui/select';
-import { createAppointment } from '@/app/actions';
-import { useState } from 'react';
+import { createAppointment, updateAppointment } from '@/app/actions';
+import { useEffect, useState } from 'react';
 import { Appointment } from '@/types/appointment';
 
 const appointmentFormSchema = z
@@ -53,7 +53,7 @@ const appointmentFormSchema = z
     petName: z.string().min(3, 'O nome do pet é obrigatorio'),
     phone: z.string().min(11, 'O telefone é obrigatorio'),
     description: z.string().min(3, 'A descrição é obrigatoria'),
-    scheduleAt: z
+    scheduledAt: z
       .date({
         error: 'A data é obrigatoria',
       })
@@ -64,7 +64,7 @@ const appointmentFormSchema = z
     (data) => {
       const [hour, minute] = data.time.split(':');
       const sheduleDateTime = setMinutes(
-        setHours(data.scheduleAt, Number(hour)),
+        setHours(data.scheduledAt, Number(hour)),
         Number(minute)
       );
 
@@ -80,7 +80,7 @@ type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
 type AppointmentFormProps = {
   appointment?: Appointment;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 export function AppointmentForm({
@@ -96,19 +96,23 @@ export function AppointmentForm({
       petName: '',
       phone: '',
       description: '',
-      scheduleAt: undefined,
+      scheduledAt: undefined,
       time: '',
     },
   });
 
   const onSubmit = async (data: AppointmentFormValues) => {
-    const { scheduleAt } = data;
+    const { scheduledAt } = data;
 
     const [hours, minutes] = data.time.split(':');
 
-    scheduleAt.setHours(Number(hours), Number(minutes), 0, 0);
+    scheduledAt.setHours(Number(hours), Number(minutes), 0, 0);
 
-    const result = await createAppointment({ ...data, scheduleAt });
+    const isEdit = !!appointment?.id;
+
+    const result = isEdit
+      ? await updateAppointment(appointment.id, { ...data, scheduledAt })
+      : await createAppointment({ ...data, scheduledAt });
 
     if (result?.error) {
       toast.error(result.error);
@@ -116,20 +120,31 @@ export function AppointmentForm({
     }
 
     toast.success(
-      `Agendamento realizado para: ${data.tutorName} (${data.petName}) as ${format(scheduleAt, 'dd/MM/yyyy HH:mm')}`
+      `Agendamento ${isEdit ? 'atualizado' : 'realizado'} para: ${data.tutorName} (${data.petName}) as ${format(scheduledAt, 'dd/MM/yyyy HH:mm')}`
     );
 
     form.reset();
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (appointment) {
+      form.reset({
+        ...appointment,
+        scheduledAt: new Date(appointment.scheduledAt),
+      });
+    }
+  }, [appointment, form]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
-
-      <DialogTrigger asChild>
-        <Button variant="brand">Novo Agendamento</Button>
-      </DialogTrigger>
+      {children ? (
+        <DialogTrigger asChild>{children}</DialogTrigger>
+      ) : (
+        <DialogTrigger asChild>
+          <Button variant="brand">Novo Agendamento</Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent variant="appointment">
         <DialogHeader>
@@ -273,7 +288,7 @@ export function AppointmentForm({
 
           <div className="space-y-4 md:grid md:grid-cols-2 gap-4 md:space-y-0">
             <Controller
-              name="scheduleAt"
+              name="scheduledAt"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field
